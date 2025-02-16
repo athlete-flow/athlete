@@ -1,0 +1,23 @@
+{
+  "name": "athlete",
+  "version": "0.0.1",
+  "description": "Lightweight DI container for js/ts",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/athlete-flow/athlete"
+  },
+  "keywords": [
+    "dependency-injection",
+    "di"
+  ],
+  "author": "Denis Redcade",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
