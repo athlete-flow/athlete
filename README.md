@@ -1,4 +1,3 @@
-
 # Athlete Documentation
 
 A lightweight DI framework.  
@@ -8,7 +7,7 @@ JS/TS friendly.
 ### Usage
 
 ```typescript
-import { Athlete } from 'athlete';
+import { Athlete } from 'athlete-core';
 
 const framework = Athlete();
 ```
@@ -31,7 +30,7 @@ interface IFramework {
 `framework` is used to configure dependencies.
 
 ```typescript
-import { Athlete } from 'athlete';
+import { Athlete } from 'athlete-core';
 
 const container = Athlete().buildContainer();
 ```
@@ -130,9 +129,7 @@ class ServiceBModule {
   }
 }
 
-Athlete()
-  .injectModule(ServiceAModule)
-  .injectModule(ServiceBModule, [ServiceAModule]);
+Athlete().injectModule(ServiceAModule).injectModule(ServiceBModule, [ServiceAModule]);
 ```
 
 - **executeCommand**: Method to set a command that will run after the container is created.
