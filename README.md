@@ -9,7 +9,7 @@ JS/TS friendly.
 ```typescript
 import { Athlete } from 'athlete-core';
 
-const framework = Athlete();
+const framework = Athlete(); // or const framework = new Athlete();
 ```
 
 ```typescript
@@ -41,7 +41,7 @@ interface IContainer {
   executeCommand<T extends ICommand>(token: Token<T, []>): IContainer;
   executeCommand<T extends ICommand, A extends any[]>(
     token: Token<T, A>,
-    dependencies?: PartialDependencies<A>
+    dependencies: PartialDependencies<A>
   ): IContainer;
 }
 ```
@@ -102,7 +102,7 @@ The `IModule` interface defines a method `export` that is called to inject a mod
 
 ```typescript
 interface IModule {
-  export(framework: IModuleFramework): void;
+  export(injector: IInjector): void;
 }
 ```
 
@@ -111,21 +111,21 @@ class ServiceA {}
 
 function ServiceB(serviceA: ServiceA) {}
 
-class ServiceAModule {
+class ServiceAModule implements IModule {
   readonly SERVICE_A_TOKEN = ServiceA;
 
-  export(framework: IModuleFramework) {
-    framework.inject(this.SERVICE_A_TOKEN);
+  export(injector: IInjector): void {
+    injector.inject(this.SERVICE_A_TOKEN);
   }
 }
 
-class ServiceBModule {
+class ServiceBModule implements IModule {
   constructor(readonly serviceA: ServiceA) {}
 
   readonly SERVICE_B_TOKEN = ServiceB;
 
-  export(framework: IModuleFramework) {
-    framework.inject(this.SERVICE_B_TOKEN, [this.serviceA.SERVICE_A_TOKEN]);
+  export(injector: IInjector): void {
+    injector.inject(this.SERVICE_B_TOKEN, [this.serviceA.SERVICE_A_TOKEN]);
   }
 }
 
@@ -138,7 +138,7 @@ If there are multiple commands, they will execute sequentially in the set order.
 
 ```typescript
 interface ICommand {
-  execute(container: ICommandContainer): void;
+  execute(locator: ILocator): void;
 }
 ```
 
@@ -147,29 +147,29 @@ class ServiceA {}
 
 function ServiceB(serviceA: ServiceA) {}
 
-class ServiceAModule {
+class ServiceAModule implements IModule {
   readonly SERVICE_A_TOKEN = ServiceA;
 
-  export(framework: IModuleFramework) {
-    framework.inject(this.SERVICE_A_TOKEN);
+  export(injector: IInjector): void {
+    injector.inject(this.SERVICE_A_TOKEN);
   }
 }
 
-class ServiceBModule {
+class ServiceBModule implements IModule {
   constructor(readonly serviceA: ServiceA) {}
 
   readonly SERVICE_B_TOKEN = ServiceB;
 
-  export(framework: IModuleFramework) {
-    framework.inject(this.SERVICE_B_TOKEN, [this.serviceA.SERVICE_A_TOKEN]);
+  export(injector: IInjector): void {
+    injector.inject(this.SERVICE_B_TOKEN, [this.serviceA.SERVICE_A_TOKEN]);
   }
 }
 
-class ReturnServiceBInstance {
+class ReturnServiceBInstance implements ICommand {
   constructor(readonly serviceBModule: ServiceBModule) {}
 
-  execute(container: ICommandContainer): void {
-    const serviceBInstance = container.resolveInstance(this.serviceBModule.SERVICE_B_TOKEN);
+  execute(locator: ILocator): void {
+    const serviceBInstance = locator.resolveInstance(this.serviceBModule.SERVICE_B_TOKEN);
   }
 }
 
