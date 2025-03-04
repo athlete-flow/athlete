@@ -149,4 +149,10 @@ describe('Framework', () => {
         .buildContainer();
     }).toThrowError('Cyclic dependency detected: [ CyclicServiceA, CyclicServiceB ]');
   });
+
+  test('should return locator instance', () => {
+    const candidate = framework.buildContainer().resolveInstance(Athlete.LOCATOR_TOKEN);
+
+    expect(candidate).toHaveProperty('resolveInstance');
+  });
 });

@@ -191,4 +191,19 @@ class ServiceA {
 Athlete().inject(ServiceA, [[42], [{}]]);
 ```
 
+- **Inject container locator**  
+  You can inject the instance resolver as a dependency.
+
+```typescript
+class ServiceA {
+  constructor(readonly locator: ILocator) {}
+
+  test() {
+    const serviceA = this.locator.resolveInstance(ServiceA);
+  }
+}
+
+Athlete().inject(ServiceA, [Athlete.LOCATOR_TOKEN]);
+```
+
 Enjoy programming!

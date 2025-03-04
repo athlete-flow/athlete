@@ -167,6 +167,10 @@ export interface IContainer extends ILocator {
 export interface AthleteConstructor {
   new (): IFramework;
   (): IFramework;
+  /**
+   * Injectable oken for container locator.
+   */
+  LOCATOR_TOKEN: Token<ILocator>;
 }
 
 /**
