@@ -47,10 +47,10 @@ export type PartialDependencies<A extends any[]> = { [K in keyof A]: PartialDepe
  */
 export interface IModule {
   /**
-   * Exports the module to the framework.
-   * @param { IModuleFramework } framework - The framework instance.
+   * Exports the module to the framework context.
+   * @param { IInjector } injector - The framework instance as injector.
    */
-  export(framework: IModuleFramework): void;
+  export(injector: IInjector): void;
 }
 
 /**
@@ -58,10 +58,10 @@ export interface IModule {
  */
 export interface ICommand {
   /**
-   * Executes the command with the given container.
-   * @param { ICommandContainer } container - The command execution context.
+   * Executes the command with the given locator.
+   * @param { ILocator } locator - The command execution context.
    */
-  execute(container: ICommandContainer): void;
+  execute(locator: ILocator): void;
 }
 
 /**
@@ -111,12 +111,32 @@ export interface IFramework {
 /**
  * The module framework interface, providing limited injection methods.
  */
-export type IModuleFramework = Pick<IFramework, 'inject' | 'injectFactory' | 'injectModule'>;
+export interface IInjector {
+  /**
+   * Injects a token with dependencies.
+   * @template T, A
+   * @param { Token<T, A> } token - The token to be injected.
+   * @param { Dependencies<A> } [dependencies=[]] - The dependencies of the token.
+   * @returns { IInjector } The framework instance for chaining.
+   */
+  inject<T>(token: Token<T, []>): IInjector;
+  inject<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IInjector;
+
+  /**
+   * Injects a factory token with dependencies.
+   * @template T, A
+   * @param { Token<T, A> } token - The factory token to be injected.
+   * @param { Dependencies<A> } [dependencies=[]] - The dependencies of the token.
+   * @returns { IInjector } The framework instance for chaining.
+   */
+  injectFactory<T>(token: Token<T, []>): IInjector;
+  injectFactory<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IInjector;
+}
 
 /**
- * The dependency container interface.
+ * The service locator interface, providing resolution capabilities
  */
-export interface IContainer {
+export interface ILocator {
   /**
    * Resolves an instance of the given token.
    * @template T
@@ -124,7 +144,12 @@ export interface IContainer {
    * @returns { T } The resolved instance.
    */
   resolveInstance<T>(token: Token<T>): T;
+}
 
+/**
+ * The dependency container interface.
+ */
+export interface IContainer extends ILocator {
   /**
    * Executes a command within the container.
    * @template T, A
@@ -135,17 +160,17 @@ export interface IContainer {
   executeCommand<T extends ICommand>(token: Token<T, []>): IContainer;
   executeCommand<T extends ICommand, A extends any[]>(
     token: Token<T, A>,
-    dependencies?: PartialDependencies<A>
+    dependencies: PartialDependencies<A>
   ): IContainer;
 }
 
-/**
- * The command container interface, providing resolution capabilities.
- */
-export type ICommandContainer = Pick<IContainer, 'resolveInstance'>;
+export interface AthleteConstructor {
+  new (): IFramework;
+  (): IFramework;
+}
 
 /**
  * Creates a new framework instance.
  * @returns { IFramework } The framework instance.
  */
-export declare function Athlete(): IFramework;
+export declare const Athlete: AthleteConstructor;
