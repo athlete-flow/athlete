@@ -168,7 +168,7 @@ export interface AthleteConstructor {
   new (): IFramework;
   (): IFramework;
   /**
-   * Injectable oken for container locator.
+   * Injectable token for container locator.
    */
   LOCATOR_TOKEN: Token<ILocator>;
 }

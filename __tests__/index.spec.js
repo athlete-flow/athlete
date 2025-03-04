@@ -151,7 +151,10 @@ describe('Framework', () => {
   });
 
   test('should return locator instance', () => {
-    const candidate = framework.buildContainer().resolveInstance(Athlete.LOCATOR_TOKEN);
+    const container = framework.buildContainer();
+    const candidate = container
+      .resolveInstance(Athlete.LOCATOR_TOKEN)
+      .resolveInstance(Athlete.LOCATOR_TOKEN);
 
     expect(candidate).toHaveProperty('resolveInstance');
   });
