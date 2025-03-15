@@ -180,6 +180,14 @@ Athlete()
   .executeCommand(ReturnServiceBInstance, [ServiceBModule]);
 ```
 
+- **canBeResolved**: Method to check whether a given candidate can be resolved as a valid token.
+
+If the candidate is a valid token, it can be used for dependency resolution.
+
+```typescript
+const isToken = Athlete().buildContainer().canBeResolved(Athlete.LOCATOR_TOKEN); // isToken = true
+```
+
 - **Inject objects and primitives**  
   To specify objects or primitives that should not be instantiated, wrap the value in a tuple.
 

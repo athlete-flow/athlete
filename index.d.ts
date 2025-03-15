@@ -144,6 +144,13 @@ export interface ILocator {
    * @returns { T } The resolved instance.
    */
   resolveInstance<T>(token: Token<T>): T;
+  /**
+   * Determines whether the given candidate can be resolved as a token.
+   *
+   * @param {unknown} candidate - The value to check.
+   * @returns {candidate is Token} `true` if the candidate is a valid token, otherwise `false`.
+   */
+  canBeResolved(candidate: unknown): candidate is Token;
 }
 
 /**

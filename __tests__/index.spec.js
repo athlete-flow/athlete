@@ -158,4 +158,12 @@ describe('Framework', () => {
 
     expect(candidate).toHaveProperty('resolveInstance');
   });
+
+  test('should return locator instance', () => {
+    const success = framework.buildContainer().canBeResolved(Athlete.LOCATOR_TOKEN);
+    const failure = framework.buildContainer().canBeResolved(undefined);
+
+    expect(success).toBe(true);
+    expect(failure).toBe(false);
+  });
 });
