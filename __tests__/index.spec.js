@@ -1,4 +1,4 @@
-const { Athlete } = require('../index');
+const { Athlete, LOCATOR_TOKEN } = require('../index');
 
 class Logger {}
 
@@ -141,7 +141,22 @@ describe('Framework', () => {
     }).toThrowError();
   });
 
-  test('should throw error on cyclic dependency', () => {
+  test('should return locator instance', () => {
+    const container = framework.buildContainer();
+    const candidate = container.resolveInstance(LOCATOR_TOKEN).resolveInstance(LOCATOR_TOKEN);
+
+    expect(candidate).toHaveProperty('resolveInstance');
+  });
+
+  test('should return locator instance', () => {
+    const success = framework.buildContainer().canBeResolved(LOCATOR_TOKEN);
+    const failure = framework.buildContainer().canBeResolved(undefined);
+
+    expect(success).toBe(true);
+    expect(failure).toBe(false);
+  });
+
+  test('should throw a error on cyclic dependency', () => {
     expect(() => {
       framework
         .inject(CyclicServiceA, [CyclicServiceB])
@@ -150,20 +165,19 @@ describe('Framework', () => {
     }).toThrowError('Cyclic dependency detected: [ CyclicServiceA, CyclicServiceB ]');
   });
 
-  test('should return locator instance', () => {
-    const container = framework.buildContainer();
-    const candidate = container
-      .resolveInstance(Athlete.LOCATOR_TOKEN)
-      .resolveInstance(Athlete.LOCATOR_TOKEN);
+  test('should throw a not inject error', () => {
+    expect(() => {
+      framework.inject(42);
+    }).toThrowError('[ 42 ] is not a token');
 
-    expect(candidate).toHaveProperty('resolveInstance');
-  });
+    expect(() => {
+      framework.inject(function boo(num) {
+        return num;
+      }, 42);
+    }).toThrowError('Wrong dependencies from [ boo ] token');
 
-  test('should return locator instance', () => {
-    const success = framework.buildContainer().canBeResolved(Athlete.LOCATOR_TOKEN);
-    const failure = framework.buildContainer().canBeResolved(undefined);
-
-    expect(success).toBe(true);
-    expect(failure).toBe(false);
+    expect(() => {
+      framework.inject((num) => num, [[42, 42]]);
+    }).toThrowError('[ 42,42 ] is not a dependency');
   });
 });

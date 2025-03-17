@@ -185,7 +185,8 @@ Athlete()
 If the candidate is a valid token, it can be used for dependency resolution.
 
 ```typescript
-const isToken = Athlete().buildContainer().canBeResolved(Athlete.LOCATOR_TOKEN); // isToken = true
+const isToken = Athlete().buildContainer().canBeResolved(LOCATOR_TOKEN);
+// isToken = true
 ```
 
 - **Inject objects and primitives**  
@@ -203,6 +204,8 @@ Athlete().inject(ServiceA, [[42], [{}]]);
   You can inject the instance resolver as a dependency.
 
 ```typescript
+import { Athlete, LOCATOR_TOKEN } from 'athlete-core';
+
 class ServiceA {
   constructor(readonly locator: ILocator) {}
 
@@ -211,7 +214,7 @@ class ServiceA {
   }
 }
 
-Athlete().inject(ServiceA, [Athlete.LOCATOR_TOKEN]);
+Athlete().inject(ServiceA, [LOCATOR_TOKEN]);
 ```
 
 Enjoy programming!

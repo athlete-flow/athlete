@@ -174,10 +174,6 @@ export interface IContainer extends ILocator {
 export interface AthleteConstructor {
   new (): IFramework;
   (): IFramework;
-  /**
-   * Injectable token for container locator.
-   */
-  LOCATOR_TOKEN: Token<ILocator>;
 }
 
 /**
@@ -185,3 +181,8 @@ export interface AthleteConstructor {
  * @returns { IFramework } The framework instance.
  */
 export declare const Athlete: AthleteConstructor;
+
+/**
+ * Injectable token for container locator.
+ */
+export declare const LOCATOR_TOKEN: Token<ILocator>;
