@@ -138,7 +138,7 @@ If there are multiple commands, they will execute sequentially in the set order.
 
 ```typescript
 interface ICommand {
-  execute(locator: ILocator): void;
+  execute(resolver: IResolver): void;
 }
 ```
 
@@ -168,8 +168,8 @@ class ServiceBModule implements IModule {
 class ReturnServiceBInstance implements ICommand {
   constructor(readonly serviceBModule: ServiceBModule) {}
 
-  execute(locator: ILocator): void {
-    const serviceBInstance = locator.resolveInstance(this.serviceBModule.SERVICE_B_TOKEN);
+  execute(resolver: IResolver): void {
+    const serviceBInstance = resolver.resolveInstance(this.serviceBModule.SERVICE_B_TOKEN);
   }
 }
 
@@ -185,7 +185,7 @@ Athlete()
 If the candidate is a valid token, it can be used for dependency resolution.
 
 ```typescript
-const isToken = Athlete().buildContainer().canBeResolved(LOCATOR_TOKEN);
+const isToken = Athlete().buildContainer().canBeResolved(RESOLVER_TOKEN);
 // isToken = true
 ```
 
@@ -200,21 +200,21 @@ class ServiceA {
 Athlete().inject(ServiceA, [[42], [{}]]);
 ```
 
-- **Inject container locator**  
+- **Inject resolver**  
   You can inject the instance resolver as a dependency.
 
 ```typescript
-import { Athlete, LOCATOR_TOKEN } from 'athlete-core';
+import { Athlete, RESOLVER_TOKEN } from 'athlete-core';
 
 class ServiceA {
-  constructor(readonly locator: ILocator) {}
+  constructor(readonly resolver: IResolver) {}
 
   test() {
-    const serviceA = this.locator.resolveInstance(ServiceA);
+    const serviceA = this.resolver.resolveInstance(ServiceA);
   }
 }
 
-Athlete().inject(ServiceA, [LOCATOR_TOKEN]);
+Athlete().inject(ServiceA, [RESOLVER_TOKEN]);
 ```
 
 Enjoy programming!

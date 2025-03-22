@@ -58,10 +58,10 @@ export interface IModule {
  */
 export interface ICommand {
   /**
-   * Executes the command with the given locator.
-   * @param { ILocator } locator - The command execution context.
+   * Executes the command with the given resolver.
+   * @param { IResolver } resolver - The command execution context.
    */
-  execute(locator: ILocator): void;
+  execute(resolver: IResolver): void;
 }
 
 /**
@@ -134,9 +134,9 @@ export interface IInjector {
 }
 
 /**
- * The service locator interface, providing resolution capabilities
+ * The resolver interface, providing resolution capabilities
  */
-export interface ILocator {
+export interface IResolver {
   /**
    * Resolves an instance of the given token.
    * @template T
@@ -156,7 +156,7 @@ export interface ILocator {
 /**
  * The dependency container interface.
  */
-export interface IContainer extends ILocator {
+export interface IContainer extends IResolver {
   /**
    * Executes a command within the container.
    * @template T, A
@@ -183,6 +183,6 @@ export interface AthleteConstructor {
 export declare const Athlete: AthleteConstructor;
 
 /**
- * Injectable token for container locator.
+ * Injectable token for container Resolver.
  */
-export declare const LOCATOR_TOKEN: Token<ILocator>;
+export declare const RESOLVER_TOKEN: Token<IResolver>;

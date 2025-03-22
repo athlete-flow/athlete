@@ -1,4 +1,4 @@
-const { Athlete, LOCATOR_TOKEN } = require('../index');
+const { Athlete, RESOLVER_TOKEN } = require('../index');
 
 class Logger {}
 
@@ -102,11 +102,14 @@ describe('Framework', () => {
     expect(framework).toHaveProperty('injectModule');
     expect(framework).toHaveProperty('injectFactory');
     expect(framework).toHaveProperty('buildContainer');
+    expect(framework).not.toHaveProperty('init');
 
     const container = framework.buildContainer();
 
     expect(container).toHaveProperty('executeCommand');
     expect(container).toHaveProperty('resolveInstance');
+    expect(container).toHaveProperty('canBeResolved');
+    expect(container).not.toHaveProperty('init');
   });
 
   test('should inject and resolve dependencies correctly', () => {
@@ -123,6 +126,26 @@ describe('Framework', () => {
     expect(res.getData()).toBe('A' + 'B' + 'payload');
   });
 
+  test('should inject and resolve factory dependencies correctly', () => {
+    const MockedLogger = jest.fn();
+    const MockedService = jest.fn();
+    const MockedController = jest.fn();
+    const container = framework
+      .injectFactory(MockedLogger)
+      .inject(MockedService, [MockedLogger])
+      .inject(MockedController, [MockedLogger])
+      .buildContainer();
+
+    container.resolveInstance(MockedService);
+    container.resolveInstance(MockedService);
+    container.resolveInstance(MockedController);
+    container.resolveInstance(MockedController);
+
+    expect(MockedLogger).toHaveBeenCalledTimes(4);
+    expect(MockedService).toHaveBeenCalledTimes(1);
+    expect(MockedController).toHaveBeenCalledTimes(1);
+  });
+
   test('should throw error if dependencies are not fully injected', () => {
     expect(() => {
       framework
@@ -130,26 +153,28 @@ describe('Framework', () => {
         .injectModule(ServiceAModule)
         .injectModule(ControllerModule, [Logger, ServiceAModule, ServiceBModule])
         .buildContainer();
-    }).toThrowError();
+    }).toThrowError(`[ ${ServiceBModule.name} ] has no injection.`);
+  });
 
+  test('should throw error if dependencies are not fully injected', () => {
     expect(() => {
       framework
         .injectFactory(Logger)
         .injectModule(ServiceAModule)
         .buildContainer()
         .executeCommand(GetDataCommand, [ControllerModule]);
-    }).toThrowError();
+    }).toThrowError(`[ ${ControllerModule.name} ] has no injection.`);
   });
 
   test('should return locator instance', () => {
     const container = framework.buildContainer();
-    const candidate = container.resolveInstance(LOCATOR_TOKEN).resolveInstance(LOCATOR_TOKEN);
+    const candidate = container.resolveInstance(RESOLVER_TOKEN).resolveInstance(RESOLVER_TOKEN);
 
     expect(candidate).toHaveProperty('resolveInstance');
   });
 
   test('should return locator instance', () => {
-    const success = framework.buildContainer().canBeResolved(LOCATOR_TOKEN);
+    const success = framework.buildContainer().canBeResolved(RESOLVER_TOKEN);
     const failure = framework.buildContainer().canBeResolved(undefined);
 
     expect(success).toBe(true);
@@ -162,22 +187,29 @@ describe('Framework', () => {
         .inject(CyclicServiceA, [CyclicServiceB])
         .inject(CyclicServiceB, [CyclicServiceA])
         .buildContainer();
-    }).toThrowError('Cyclic dependency detected: [ CyclicServiceA, CyclicServiceB ]');
+    }).toThrowError(
+      `Cyclic dependency detected between [ ${CyclicServiceA.name}, ${CyclicServiceB.name}, ${CyclicServiceA.name} ]`
+    );
   });
 
   test('should throw a not inject error', () => {
+    const num = 42;
     expect(() => {
-      framework.inject(42);
-    }).toThrowError('[ 42 ] is not a token');
+      framework.inject(num);
+    }).toThrowError(`[ ${String(42)} ] is not a valid token`);
+
+    const boo = function boo(num) {
+      return num;
+    };
 
     expect(() => {
-      framework.inject(function boo(num) {
-        return num;
-      }, 42);
-    }).toThrowError('Wrong dependencies from [ boo ] token');
+      framework.inject(boo, 42);
+    }).toThrowError(`Invalid dependencies provided for token [ ${boo.name} ]`);
+
+    const wrongDependencies = [42, 42];
 
     expect(() => {
       framework.inject((num) => num, [[42, 42]]);
-    }).toThrowError('[ 42,42 ] is not a dependency');
+    }).toThrowError(`[ ${String(wrongDependencies)} ] is not a valid dependency.`);
   });
 });
