@@ -42,6 +42,12 @@ export type Dependencies<A extends any[]> = { [K in keyof A]: Dependency<A[K]> }
  */
 export type PartialDependencies<A extends any[]> = { [K in keyof A]: PartialDependecy<A[K]> };
 
+export interface IProvider<T = unknown, A extends any[] = any[]> {
+  token: Token<T, A>;
+  depndencies: A;
+  instantiate: (graph: Map<Token, IProvider>) => T;
+}
+
 /**
  * Interface for modules that can be exported in the framework.
  */
@@ -133,6 +139,11 @@ export interface IInjector {
   injectFactory<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IInjector;
 }
 
+export interface IInfo {
+  tokens: Map<Token, IProvider>;
+  modules: Map<Token, IProvider>;
+}
+
 /**
  * The resolver interface, providing resolution capabilities
  */
@@ -151,6 +162,7 @@ export interface IResolver {
    * @returns {candidate is Token} `true` if the candidate is a valid token, otherwise `false`.
    */
   canBeResolved(candidate: unknown): candidate is Token;
+  getInfo(): IInfo;
 }
 
 /**

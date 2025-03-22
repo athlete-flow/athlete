@@ -189,6 +189,25 @@ const isToken = Athlete().buildContainer().canBeResolved(RESOLVER_TOKEN);
 // isToken = true
 ```
 
+- **GetInfo**: Ьethod returns information about the current container. It returns an object containing maps of tokens and modules.
+
+```typescript
+export interface IProvider<T = unknown, A extends any[] = any[]> {
+  token: Token<T, A>;
+  depndencies: A;
+  instantiate: (graph: Map<Token, IProvider>) => T;
+}
+
+export interface IInfo {
+  tokens: Map<Token, IProvider>;
+  modules: Map<Token, IProvider>;
+}
+```
+
+```typescript
+const info = Athlete().buildContainer().getInfo();
+```
+
 - **Inject objects and primitives**  
   To specify objects or primitives that should not be instantiated, wrap the value in a tuple.
 

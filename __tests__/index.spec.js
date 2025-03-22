@@ -97,7 +97,7 @@ describe('Framework', () => {
     framework = Athlete();
   });
 
-  test('should initialize framework correctly', () => {
+  test('should initialize the framework with the correct properties', () => {
     expect(framework).toHaveProperty('inject');
     expect(framework).toHaveProperty('injectModule');
     expect(framework).toHaveProperty('injectFactory');
@@ -109,10 +109,11 @@ describe('Framework', () => {
     expect(container).toHaveProperty('executeCommand');
     expect(container).toHaveProperty('resolveInstance');
     expect(container).toHaveProperty('canBeResolved');
+    expect(container).toHaveProperty('getInfo');
     expect(container).not.toHaveProperty('init');
   });
 
-  test('should inject and resolve dependencies correctly', () => {
+  test('should inject dependencies and resolve them correctly', () => {
     const res = framework
       .injectFactory(Logger)
       .injectModule(ServiceAModule)
@@ -126,7 +127,7 @@ describe('Framework', () => {
     expect(res.getData()).toBe('A' + 'B' + 'payload');
   });
 
-  test('should inject and resolve factory dependencies correctly', () => {
+  test('should inject and resolve dependencies from factories correctly', () => {
     const MockedLogger = jest.fn();
     const MockedService = jest.fn();
     const MockedController = jest.fn();
@@ -146,7 +147,7 @@ describe('Framework', () => {
     expect(MockedController).toHaveBeenCalledTimes(1);
   });
 
-  test('should throw error if dependencies are not fully injected', () => {
+  test("should throw an error if a module's dependencies are not fully injected", () => {
     expect(() => {
       framework
         .injectFactory(Logger)
@@ -156,7 +157,7 @@ describe('Framework', () => {
     }).toThrowError(`[ ${ServiceBModule.name} ] has no injection.`);
   });
 
-  test('should throw error if dependencies are not fully injected', () => {
+  test('should throw an error if dependencies are not fully injected', () => {
     expect(() => {
       framework
         .injectFactory(Logger)
@@ -166,14 +167,14 @@ describe('Framework', () => {
     }).toThrowError(`[ ${ControllerModule.name} ] has no injection.`);
   });
 
-  test('should return locator instance', () => {
+  test('should return a resolver instance from the container', () => {
     const container = framework.buildContainer();
     const candidate = container.resolveInstance(RESOLVER_TOKEN).resolveInstance(RESOLVER_TOKEN);
 
     expect(candidate).toHaveProperty('resolveInstance');
   });
 
-  test('should return locator instance', () => {
+  test('should return correct resolution status for tokens', () => {
     const success = framework.buildContainer().canBeResolved(RESOLVER_TOKEN);
     const failure = framework.buildContainer().canBeResolved(undefined);
 
@@ -181,7 +182,7 @@ describe('Framework', () => {
     expect(failure).toBe(false);
   });
 
-  test('should throw a error on cyclic dependency', () => {
+  test('should throw an error for cyclic dependencies', () => {
     expect(() => {
       framework
         .inject(CyclicServiceA, [CyclicServiceB])
@@ -192,7 +193,7 @@ describe('Framework', () => {
     );
   });
 
-  test('should throw a not inject error', () => {
+  test('should throw an error when an invalid dependency is provided', () => {
     const num = 42;
     expect(() => {
       framework.inject(num);
@@ -211,5 +212,14 @@ describe('Framework', () => {
     expect(() => {
       framework.inject((num) => num, [[42, 42]]);
     }).toThrowError(`[ ${String(wrongDependencies)} ] is not a valid dependency.`);
+  });
+
+  test('should return container information correctly', () => {
+    const info = framework.buildContainer().getInfo();
+
+    expect(info?.tokens).toBeInstanceOf(Map);
+    expect(info?.modules).toBeInstanceOf(Map);
+    expect(info?.tokens.size).toBe(1);
+    expect(info?.modules.size).toBe(0);
   });
 });
