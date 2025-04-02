@@ -1,10 +1,14 @@
 const { Athlete, RESOLVER_TOKEN } = require('../index');
 
+const serviceAData = 'A'
+const serviceBData = 'B'
+const payload = 'payload'
+
 class Logger {}
 
 class ServiceA {
   getData() {
-    return 'A';
+    return serviceAData;
   }
 }
 
@@ -14,7 +18,7 @@ class ServiceB {
   }
 
   getData() {
-    return 'B' + this.payload;
+    return serviceBData + this.payload;
   }
 }
 
@@ -45,7 +49,7 @@ class ServiceBModule {
   SERVICE_B_TOKEN = ServiceB;
 
   export({ inject }) {
-    inject(this.SERVICE_B_TOKEN, [this.loggerToken, ['payload']]);
+    inject(this.SERVICE_B_TOKEN, [this.loggerToken, [payload]]);
   }
 }
 
@@ -124,7 +128,7 @@ describe('Framework', () => {
       .resolveInstance(Controller);
 
     expect(res).toBeInstanceOf(Controller);
-    expect(res.getData()).toBe('A' + 'B' + 'payload');
+    expect(res.getData()).toBe(serviceAData + serviceBData + payload);
   });
 
   test('should inject and resolve dependencies from factories correctly', () => {
