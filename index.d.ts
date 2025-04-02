@@ -24,23 +24,9 @@ export type UninjectableToken<T = unknown> = [T];
 export type Dependency<T = unknown> = Token<T> | UninjectableToken<T>;
 
 /**
- * Represents a partial dependency, allowing both injectable and uninjectable tokens.
- */
-export type PartialDependecy<T = unknown> = T extends Token
-  ? T
-  : T extends UninjectableToken
-  ? T
-  : Dependency<T>;
-
-/**
  * Represents an array of dependencies.
  */
 export type Dependencies<A extends any[]> = { [K in keyof A]: Dependency<A[K]> };
-
-/**
- * Represents an array of partial dependencies.
- */
-export type PartialDependencies<A extends any[]> = { [K in keyof A]: PartialDependecy<A[K]> };
 
 /**
  * A provider interface that handles dependency injection.
@@ -117,7 +103,6 @@ export interface IFramework {
    * @param { Dependencies<A> } [dependencies=[]] - The dependencies of the token.
    * @returns { IFramework } The framework instance for chaining.
    * @example
-
    * framework.injectFactory(MyFactoryToken);
    */
   injectFactory<T>(token: Token<T, []>): IFramework;
@@ -127,7 +112,7 @@ export interface IFramework {
    * Injects a module with dependencies.
    * @template T, A
    * @param { Token<T extends IModule, A> } token - The module token to be injected.
-   * @param { PartialDependencies<A> } [dependencies=[]] - The dependencies of the module.
+   * @param { Dependencies<A> } [dependencies=[]] - The dependencies of the module.
    * @returns { IFramework } The framework instance for chaining.
    * @example
    * framework.injectModule(MyModuleToken, [dependency1]);
@@ -135,7 +120,7 @@ export interface IFramework {
   injectModule<T extends IModule>(token: Token<T, []>): IFramework;
   injectModule<T extends IModule, A extends any[]>(
     token: Token<T, A>,
-    dependencies: PartialDependencies<A>
+    dependencies: Dependencies<A>
   ): IFramework;
 
   /**
@@ -232,7 +217,7 @@ export interface IContainer extends IResolver {
    * Executes a command within the container.
    * @template T, A
    * @param { Token<T extends ICommand, A> } token - The command token.
-   * @param { PartialDependencies<A> } [dependencies=[]] - Optional dependencies for the command.
+   * @param { Dependencies<A> } [dependencies=[]] - Optional dependencies for the command.
    * @returns { IContainer } The container instance for chaining.
    * @example
    * container.executeCommand(MyCommandToken);
@@ -240,7 +225,7 @@ export interface IContainer extends IResolver {
   executeCommand<T extends ICommand>(token: Token<T, []>): IContainer;
   executeCommand<T extends ICommand, A extends any[]>(
     token: Token<T, A>,
-    dependencies: PartialDependencies<A>
+    dependencies: Dependencies<A>
   ): IContainer;
 }
 

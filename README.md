@@ -7,7 +7,7 @@ JS/TS friendly.
 ### Usage
 
 ```typescript
-import { Athlete } from 'athlete-core';
+import { Athlete } from "athlete-core";
 
 const framework = Athlete(); // or const framework = new Athlete();
 ```
@@ -15,13 +15,19 @@ const framework = Athlete(); // or const framework = new Athlete();
 ```typescript
 interface IFramework {
   inject<T>(token: Token<T, []>): IFramework;
-  inject<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IFramework;
+  inject<T, A extends any[]>(
+    token: Token<T, A>,
+    dependencies: Dependencies<A>
+  ): IFramework;
   injectFactory<T>(token: Token<T, []>): IFramework;
-  injectFactory<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IFramework;
+  injectFactory<T, A extends any[]>(
+    token: Token<T, A>,
+    dependencies: Dependencies<A>
+  ): IFramework;
   injectModule<T extends IModule>(token: Token<T, []>): IFramework;
   injectModule<T extends IModule, A extends any[]>(
     token: Token<T, A>,
-    dependencies: PartialDependencies<A>
+    dependencies: Dependencies<A>
   ): IFramework;
   buildContainer(): IContainer;
 }
@@ -30,7 +36,7 @@ interface IFramework {
 `framework` is used to configure dependencies.
 
 ```typescript
-import { Athlete } from 'athlete-core';
+import { Athlete } from "athlete-core";
 
 const container = Athlete().buildContainer();
 ```
@@ -41,7 +47,7 @@ interface IContainer {
   executeCommand<T extends ICommand>(token: Token<T, []>): IContainer;
   executeCommand<T extends ICommand, A extends any[]>(
     token: Token<T, A>,
-    dependencies: PartialDependencies<A>
+    dependencies: Dependencies<A>
   ): IContainer;
 }
 ```
@@ -129,7 +135,9 @@ class ServiceBModule implements IModule {
   }
 }
 
-Athlete().injectModule(ServiceAModule).injectModule(ServiceBModule, [ServiceAModule]);
+Athlete()
+  .injectModule(ServiceAModule)
+  .injectModule(ServiceBModule, [ServiceAModule]);
 ```
 
 - **executeCommand**: Method to set a command that will run after the container is created.
@@ -169,7 +177,9 @@ class ReturnServiceBInstance implements ICommand {
   constructor(readonly serviceBModule: ServiceBModule) {}
 
   execute(resolver: IResolver): void {
-    const serviceBInstance = resolver.resolveInstance(this.serviceBModule.SERVICE_B_TOKEN);
+    const serviceBInstance = resolver.resolveInstance(
+      this.serviceBModule.SERVICE_B_TOKEN
+    );
   }
 }
 
@@ -223,7 +233,7 @@ Athlete().inject(ServiceA, [[42], [{}]]);
   You can inject the instance resolver as a dependency.
 
 ```typescript
-import { Athlete, RESOLVER_TOKEN } from 'athlete-core';
+import { Athlete, RESOLVER_TOKEN } from "athlete-core";
 
 class ServiceA {
   constructor(readonly resolver: IResolver) {}

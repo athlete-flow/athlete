@@ -117,8 +117,8 @@ describe('Framework', () => {
     const res = framework
       .injectFactory(Logger)
       .injectModule(ServiceAModule)
-      .injectModule(ServiceBModule, [Logger])
-      .injectModule(ControllerModule, [Logger, ServiceAModule, ServiceBModule])
+      .injectModule(ServiceBModule, [[Logger]])
+      .injectModule(ControllerModule, [[Logger], ServiceAModule, ServiceBModule])
       .buildContainer()
       .executeCommand(GetDataCommand, [ControllerModule])
       .resolveInstance(Controller);
@@ -152,7 +152,7 @@ describe('Framework', () => {
       framework
         .injectFactory(Logger)
         .injectModule(ServiceAModule)
-        .injectModule(ControllerModule, [Logger, ServiceAModule, ServiceBModule])
+        .injectModule(ControllerModule, [[Logger], ServiceAModule, ServiceBModule])
         .buildContainer();
     }).toThrowError(`[ ${ServiceBModule.name} ] has no injection.`);
   });
