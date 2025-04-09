@@ -118,10 +118,7 @@ export interface IFramework {
    * framework.injectModule(MyModuleToken, [dependency1]);
    */
   injectModule<T extends IModule>(token: Token<T, []>): IFramework;
-  injectModule<T extends IModule, A extends any[]>(
-    token: Token<T, A>,
-    dependencies: Dependencies<A>
-  ): IFramework;
+  injectModule<T extends IModule, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IFramework;
 
   /**
    * Builds and returns a container instance with the resolved dependencies.
@@ -223,10 +220,7 @@ export interface IContainer extends IResolver {
    * container.executeCommand(MyCommandToken);
    */
   executeCommand<T extends ICommand>(token: Token<T, []>): IContainer;
-  executeCommand<T extends ICommand, A extends any[]>(
-    token: Token<T, A>,
-    dependencies: Dependencies<A>
-  ): IContainer;
+  executeCommand<T extends ICommand, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IContainer;
 }
 
 export interface AthleteConstructor {

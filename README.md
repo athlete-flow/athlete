@@ -49,6 +49,7 @@ interface IContainer {
     token: Token<T, A>,
     dependencies: Dependencies<A>
   ): IContainer;
+  getInfo(): IInfo;
 }
 ```
 

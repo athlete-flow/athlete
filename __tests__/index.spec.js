@@ -1,8 +1,8 @@
-const { Athlete, RESOLVER_TOKEN } = require('../index');
+const { Athlete, RESOLVER_TOKEN } = require("../index");
 
-const serviceAData = 'A'
-const serviceBData = 'B'
-const payload = 'payload'
+const serviceAData = "A";
+const serviceBData = "B";
+const payload = "payload";
 
 class Logger {}
 
@@ -94,30 +94,30 @@ class CyclicServiceB {
   }
 }
 
-describe('Framework', () => {
+describe("Framework", () => {
   let framework;
 
   beforeEach(() => {
     framework = Athlete();
   });
 
-  test('should initialize the framework with the correct properties', () => {
-    expect(framework).toHaveProperty('inject');
-    expect(framework).toHaveProperty('injectModule');
-    expect(framework).toHaveProperty('injectFactory');
-    expect(framework).toHaveProperty('buildContainer');
-    expect(framework).not.toHaveProperty('init');
+  test("should initialize the framework with the correct properties", () => {
+    expect(framework).toHaveProperty("inject");
+    expect(framework).toHaveProperty("injectModule");
+    expect(framework).toHaveProperty("injectFactory");
+    expect(framework).toHaveProperty("buildContainer");
+    expect(framework).not.toHaveProperty("init");
 
     const container = framework.buildContainer();
 
-    expect(container).toHaveProperty('executeCommand');
-    expect(container).toHaveProperty('resolveInstance');
-    expect(container).toHaveProperty('canBeResolved');
-    expect(container).toHaveProperty('getInfo');
-    expect(container).not.toHaveProperty('init');
+    expect(container).toHaveProperty("executeCommand");
+    expect(container).toHaveProperty("resolveInstance");
+    expect(container).toHaveProperty("canBeResolved");
+    expect(container).toHaveProperty("getInfo");
+    expect(container).not.toHaveProperty("init");
   });
 
-  test('should inject dependencies and resolve them correctly', () => {
+  test("should inject dependencies and resolve them correctly", () => {
     const res = framework
       .injectFactory(Logger)
       .injectModule(ServiceAModule)
@@ -131,7 +131,7 @@ describe('Framework', () => {
     expect(res.getData()).toBe(serviceAData + serviceBData + payload);
   });
 
-  test('should inject and resolve dependencies from factories correctly', () => {
+  test("should inject and resolve dependencies from factories correctly", () => {
     const MockedLogger = jest.fn();
     const MockedService = jest.fn();
     const MockedController = jest.fn();
@@ -161,7 +161,7 @@ describe('Framework', () => {
     }).toThrowError(`[ ${ServiceBModule.name} ] has no injection.`);
   });
 
-  test('should throw an error if dependencies are not fully injected', () => {
+  test("should throw an error if dependencies are not fully injected", () => {
     expect(() => {
       framework
         .injectFactory(Logger)
@@ -171,14 +171,16 @@ describe('Framework', () => {
     }).toThrowError(`[ ${ControllerModule.name} ] has no injection.`);
   });
 
-  test('should return a resolver instance from the container', () => {
+  test("should return a resolver instance from the container", () => {
     const container = framework.buildContainer();
     const candidate = container.resolveInstance(RESOLVER_TOKEN).resolveInstance(RESOLVER_TOKEN);
 
-    expect(candidate).toHaveProperty('resolveInstance');
+    expect(candidate).toHaveProperty("resolveInstance");
+    expect(candidate).toHaveProperty("canBeResolved");
+    expect(candidate).toHaveProperty("getInfo");
   });
 
-  test('should return correct resolution status for tokens', () => {
+  test("should return correct resolution status for tokens", () => {
     const success = framework.buildContainer().canBeResolved(RESOLVER_TOKEN);
     const failure = framework.buildContainer().canBeResolved(undefined);
 
@@ -186,18 +188,15 @@ describe('Framework', () => {
     expect(failure).toBe(false);
   });
 
-  test('should throw an error for cyclic dependencies', () => {
+  test("should throw an error for cyclic dependencies", () => {
     expect(() => {
-      framework
-        .inject(CyclicServiceA, [CyclicServiceB])
-        .inject(CyclicServiceB, [CyclicServiceA])
-        .buildContainer();
+      framework.inject(CyclicServiceA, [CyclicServiceB]).inject(CyclicServiceB, [CyclicServiceA]).buildContainer();
     }).toThrowError(
       `Cyclic dependency detected between [ ${CyclicServiceA.name}, ${CyclicServiceB.name}, ${CyclicServiceA.name} ]`
     );
   });
 
-  test('should throw an error when an invalid dependency is provided', () => {
+  test("should throw an error when an invalid dependency is provided", () => {
     const num = 42;
     expect(() => {
       framework.inject(num);
@@ -218,7 +217,7 @@ describe('Framework', () => {
     }).toThrowError(`[ ${String(wrongDependencies)} ] is not a valid dependency.`);
   });
 
-  test('should return container information correctly', () => {
+  test("should return container information correctly", () => {
     const info = framework.buildContainer().getInfo();
 
     expect(info?.tokens).toBeInstanceOf(Map);
