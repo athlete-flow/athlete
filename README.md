@@ -9,27 +9,18 @@ JS/TS friendly.
 ```typescript
 import { Athlete } from "athlete-core";
 
-const framework = Athlete(); // or const framework = new Athlete();
+const framework = Athlete();
 ```
 
 ```typescript
 interface IFramework {
   inject<T>(token: Token<T, []>): IFramework;
-  inject<T, A extends any[]>(
-    token: Token<T, A>,
-    dependencies: Dependencies<A>
-  ): IFramework;
+  inject<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IFramework;
   injectFactory<T>(token: Token<T, []>): IFramework;
-  injectFactory<T, A extends any[]>(
-    token: Token<T, A>,
-    dependencies: Dependencies<A>
-  ): IFramework;
+  injectFactory<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IFramework;
   injectModule<T extends IModule>(token: Token<T, []>): IFramework;
-  injectModule<T extends IModule, A extends any[]>(
-    token: Token<T, A>,
-    dependencies: Dependencies<A>
-  ): IFramework;
-  buildContainer(): IContainer;
+  injectModule<T extends IModule, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IFramework;
+  buildContainer(): IСontainer;
 }
 ```
 
@@ -42,13 +33,10 @@ const container = Athlete().buildContainer();
 ```
 
 ```typescript
-interface IContainer {
+interface IСontainer {
   resolveInstance<T>(token: Token<T>): T;
-  executeCommand<T extends ICommand>(token: Token<T, []>): IContainer;
-  executeCommand<T extends ICommand, A extends any[]>(
-    token: Token<T, A>,
-    dependencies: Dependencies<A>
-  ): IContainer;
+  executeCommand<T extends ICommand>(token: Token<T, []>): IСontainer;
+  executeCommand<T extends ICommand, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IСontainer;
   getInfo(): IInfo;
 }
 ```
@@ -80,11 +68,7 @@ class ServiceA {
 
 function ServiceB(serviceA: ServiceA, logger: Logger) {}
 
-Athlete()
-  .inject(ServiceA, [Logger])
-  .inject(ServiceB, [ServiceA, Logger])
-  .injectFactory(Logger)
-  .buildContainer();
+Athlete().inject(ServiceA, [Logger]).inject(ServiceB, [ServiceA, Logger]).injectFactory(Logger).buildContainer();
 ```
 
 `Logger` will be instantiated twice. A new instance for each service.
@@ -109,7 +93,7 @@ The `IModule` interface defines a method `export` that is called to inject a mod
 
 ```typescript
 interface IModule {
-  export(injector: IInjector): void;
+  export(framework: IFramework): void;
 }
 ```
 
@@ -121,8 +105,8 @@ function ServiceB(serviceA: ServiceA) {}
 class ServiceAModule implements IModule {
   readonly SERVICE_A_TOKEN = ServiceA;
 
-  export(injector: IInjector): void {
-    injector.inject(this.SERVICE_A_TOKEN);
+  export(framework: IFramework): void {
+    framework.inject(this.SERVICE_A_TOKEN);
   }
 }
 
@@ -131,14 +115,12 @@ class ServiceBModule implements IModule {
 
   readonly SERVICE_B_TOKEN = ServiceB;
 
-  export(injector: IInjector): void {
-    injector.inject(this.SERVICE_B_TOKEN, [this.serviceA.SERVICE_A_TOKEN]);
+  export(framework: IFramework): void {
+    framework.inject(this.SERVICE_B_TOKEN, [this.serviceA.SERVICE_A_TOKEN]);
   }
 }
 
-Athlete()
-  .injectModule(ServiceAModule)
-  .injectModule(ServiceBModule, [ServiceAModule]);
+Athlete().injectModule(ServiceAModule).injectModule(ServiceBModule, [ServiceAModule]);
 ```
 
 - **executeCommand**: Method to set a command that will run after the container is created.
@@ -147,7 +129,7 @@ If there are multiple commands, they will execute sequentially in the set order.
 
 ```typescript
 interface ICommand {
-  execute(resolver: IResolver): void;
+  execute(container: IСontainer): void;
 }
 ```
 
@@ -159,8 +141,8 @@ function ServiceB(serviceA: ServiceA) {}
 class ServiceAModule implements IModule {
   readonly SERVICE_A_TOKEN = ServiceA;
 
-  export(injector: IInjector): void {
-    injector.inject(this.SERVICE_A_TOKEN);
+  export(framework: IFramework): void {
+    framework.inject(this.SERVICE_A_TOKEN);
   }
 }
 
@@ -169,18 +151,16 @@ class ServiceBModule implements IModule {
 
   readonly SERVICE_B_TOKEN = ServiceB;
 
-  export(injector: IInjector): void {
-    injector.inject(this.SERVICE_B_TOKEN, [this.serviceA.SERVICE_A_TOKEN]);
+  export(framework: IFramework): void {
+    framework.inject(this.SERVICE_B_TOKEN, [this.serviceA.SERVICE_A_TOKEN]);
   }
 }
 
 class ReturnServiceBInstance implements ICommand {
   constructor(readonly serviceBModule: ServiceBModule) {}
 
-  execute(resolver: IResolver): void {
-    const serviceBInstance = resolver.resolveInstance(
-      this.serviceBModule.SERVICE_B_TOKEN
-    );
+  execute(container: IСontainer): void {
+    const serviceBInstance = container.resolveInstance(this.serviceBModule.SERVICE_B_TOKEN);
   }
 }
 
@@ -205,7 +185,7 @@ const isToken = Athlete().buildContainer().canBeResolved(RESOLVER_TOKEN);
 ```typescript
 export interface IProvider<T = unknown, A extends any[] = any[]> {
   token: Token<T, A>;
-  depndencies: A;
+  dependencies: A;
   instantiate: (graph: Map<Token, IProvider>) => T;
 }
 
@@ -231,20 +211,20 @@ Athlete().inject(ServiceA, [[42], [{}]]);
 ```
 
 - **Inject resolver**  
-  You can inject the instance resolver as a dependency.
+  You can inject the container instance as a dependency.
 
 ```typescript
-import { Athlete, RESOLVER_TOKEN } from "athlete-core";
+import { Athlete, CONTAINER_TOKEN } from "athlete-core";
 
 class ServiceA {
-  constructor(readonly resolver: IResolver) {}
+  constructor(readonly container: IСontainer) {}
 
   test() {
-    const serviceA = this.resolver.resolveInstance(ServiceA);
+    const serviceA = this.container.resolveInstance(ServiceA);
   }
 }
 
-Athlete().inject(ServiceA, [RESOLVER_TOKEN]);
+Athlete().inject(ServiceA, [CONTAINER_TOKEN]);
 ```
 
 Enjoy programming!

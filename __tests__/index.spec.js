@@ -1,4 +1,4 @@
-const { Athlete, RESOLVER_TOKEN } = require("../index");
+const { Athlete, CONTAINER_TOKEN } = require("../index");
 
 const serviceAData = "A";
 const serviceBData = "B";
@@ -48,8 +48,8 @@ class ServiceBModule {
 
   SERVICE_B_TOKEN = ServiceB;
 
-  export({ inject }) {
-    inject(this.SERVICE_B_TOKEN, [this.loggerToken, [payload]]);
+  export(framework) {
+    framework.inject(this.SERVICE_B_TOKEN, [this.loggerToken, [payload]]);
   }
 }
 
@@ -62,8 +62,8 @@ class ControllerModule {
 
   CONTROLLER_TOKEN = Controller;
 
-  export({ inject }) {
-    inject(this.CONTROLLER_TOKEN, [
+  export(framework) {
+    framework.inject(this.CONTROLLER_TOKEN, [
       this.loggerToken,
       this.serviceAModule.SERVICE_A_TOKEN,
       this.serviceBModule.SERVICE_B_TOKEN,
@@ -76,8 +76,8 @@ class GetDataCommand {
     this.controllerModule = controllerModule;
   }
 
-  execute({ resolveInstance }) {
-    const controller = resolveInstance(this.controllerModule.CONTROLLER_TOKEN);
+  execute(container) {
+    const controller = container.resolveInstance(this.controllerModule.CONTROLLER_TOKEN);
     controller.getData();
   }
 }
@@ -106,7 +106,6 @@ describe("Framework", () => {
     expect(framework).toHaveProperty("injectModule");
     expect(framework).toHaveProperty("injectFactory");
     expect(framework).toHaveProperty("buildContainer");
-    expect(framework).not.toHaveProperty("init");
 
     const container = framework.buildContainer();
 
@@ -114,7 +113,6 @@ describe("Framework", () => {
     expect(container).toHaveProperty("resolveInstance");
     expect(container).toHaveProperty("canBeResolved");
     expect(container).toHaveProperty("getInfo");
-    expect(container).not.toHaveProperty("init");
   });
 
   test("should inject dependencies and resolve them correctly", () => {
@@ -173,7 +171,7 @@ describe("Framework", () => {
 
   test("should return a resolver instance from the container", () => {
     const container = framework.buildContainer();
-    const candidate = container.resolveInstance(RESOLVER_TOKEN).resolveInstance(RESOLVER_TOKEN);
+    const candidate = container.resolveInstance(CONTAINER_TOKEN).resolveInstance(CONTAINER_TOKEN);
 
     expect(candidate).toHaveProperty("resolveInstance");
     expect(candidate).toHaveProperty("canBeResolved");
@@ -181,7 +179,7 @@ describe("Framework", () => {
   });
 
   test("should return correct resolution status for tokens", () => {
-    const success = framework.buildContainer().canBeResolved(RESOLVER_TOKEN);
+    const success = framework.buildContainer().canBeResolved(CONTAINER_TOKEN);
     const failure = framework.buildContainer().canBeResolved(undefined);
 
     expect(success).toBe(true);

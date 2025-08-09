@@ -33,7 +33,7 @@ export type Dependencies<A extends any[]> = { [K in keyof A]: Dependency<A[K]> }
  */
 export interface IProvider<T = unknown, A extends any[] = any[]> {
   token: Token<T, A>;
-  depndencies: A;
+  dependencies: A;
   instantiate: (graph: Map<Token, IProvider>) => T;
 }
 
@@ -43,17 +43,17 @@ export interface IProvider<T = unknown, A extends any[] = any[]> {
  * class ExampleModule implements IModule {
  *    readonly LOGGER_TOKEN: Logger
  *
- *    public export(injector: IInjector): void {
- *      injector.inject(this.LOGGER_TOKEN)
+ *    public export(framework: IFramework): void {
+ *      framework.inject(this.LOGGER_TOKEN)
  *    }
  * }
  */
 export interface IModule {
   /**
    * Exports the module to the framework context.
-   * @param { IInjector } injector - The framework instance as injector.
+   * @param { IFramework } framework - The framework instance.
    */
-  export(injector: IInjector): void;
+  export(framework: IFramework): void;
 }
 
 /**
@@ -62,11 +62,11 @@ export interface IModule {
  * class ExampleCommand implements ICommand {
  *    constructor(private readonly exampleModule: ExampleModule) {}
  *
- *    public execute(resolver: IResolver): void {
+ *    public execute(container: IContainer): void {
  *      const { LOGGER_TOKEN } = this.exampleModule
- *      const isToken = resolver.canBeResolved(LOGGER_TOKEN)
+ *      const isToken = container.canBeResolved(LOGGER_TOKEN)
  *      if (isToken) {
- *        const logger = resolver.resolveInstance(isToken)
+ *        const logger = container.resolveInstance(isToken)
  *        logger.log('example')
  *      }
  *    }
@@ -74,10 +74,10 @@ export interface IModule {
  */
 export interface ICommand {
   /**
-   * Executes the command with the given resolver.
-   * @param { IResolver } resolver - The command execution context.
+   * Executes the command with the given container.
+   * @param { IContainer } container - The container instance.
    */
-  execute(resolver: IResolver): void;
+  execute(container: IContainer): void;
 }
 
 /**
@@ -130,38 +130,6 @@ export interface IFramework {
 }
 
 /**
- * The module framework interface, providing limited injection methods.
- * @example
- * injector.inject(MyService, [dependency1, dependency2]);
- * injector.injectFactory(MyFactoryToken);
- */
-export interface IInjector {
-  /**
-   * Injects a token with dependencies.
-   * @template T, A
-   * @param { Token<T, A> } token - The token to be injected.
-   * @param { Dependencies<A> } [dependencies=[]] - The dependencies of the token.
-   * @returns { IInjector } The framework instance for chaining.
-   * @example
-   * injector.inject(MyService, [dependency1, dependency2]);
-   */
-  inject<T>(token: Token<T, []>): IInjector;
-  inject<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IInjector;
-
-  /**
-   * Injects a factory token with dependencies.
-   * @template T, A
-   * @param { Token<T, A> } token - The factory token to be injected.
-   * @param { Dependencies<A> } [dependencies=[]] - The dependencies of the token.
-   * @returns { IInjector } The framework instance for chaining.
-   * @example
-   * injector.injectFactory(MyFactoryToken);
-   */
-  injectFactory<T>(token: Token<T, []>): IInjector;
-  injectFactory<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IInjector;
-}
-
-/**
  * Interface for retrieving information about tokens and modules in the dependency context.
  */
 export interface IInfo {
@@ -170,13 +138,9 @@ export interface IInfo {
 }
 
 /**
- * The resolver interface, providing resolution capabilities.
- * @example
- * const instance = resolver.resolveInstance(MyToken)
- * const isToken = resolver.canBeResolved(MyToken)
- * const info = resolver.getInfo();
+ * The dependency container interface.
  */
-export interface IResolver {
+export interface IContainer {
   /**
    * Resolves an instance of the given token.
    * @template T
@@ -198,19 +162,6 @@ export interface IResolver {
   canBeResolved(candidate: unknown): candidate is Token;
 
   /**
-   * Provides information about the current state of the framework.
-   * @returns { IInfo } The current state info.
-   * @example
-   * const info = resolver.getInfo();
-   */
-  getInfo(): IInfo;
-}
-
-/**
- * The dependency container interface.
- */
-export interface IContainer extends IResolver {
-  /**
    * Executes a command within the container.
    * @template T, A
    * @param { Token<T extends ICommand, A> } token - The command token.
@@ -221,26 +172,27 @@ export interface IContainer extends IResolver {
    */
   executeCommand<T extends ICommand>(token: Token<T, []>): IContainer;
   executeCommand<T extends ICommand, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IContainer;
-}
 
-export interface AthleteConstructor {
-  new (): IFramework;
-  (): IFramework;
+  /**
+   * Provides information about the current state of the framework.
+   * @returns { IInfo } The current state info.
+   * @example
+   * const info = resolver.getInfo();
+   */
+  getInfo(): IInfo;
 }
 
 /**
- * Creates a new framework instance.
+ * Creates a new framework instance factory.
  * @returns { IFramework } The framework instance.
  * @example
  * const athlete = Athlete();
- * // or
- * const athlete = new Athlete();
  */
-export declare const Athlete: AthleteConstructor;
+export declare function Athlete(): IFramework;
 
 /**
- * Injectable token for container Resolver.
+ * Injectable token for container instance.
  * @example
- * const resolverToken: Token<IResolver> = RESOLVER_TOKEN;
+ * const containerToken: Token<IContainer> = CONTAINER_TOKEN;
  */
-export declare const RESOLVER_TOKEN: Token<IResolver>;
+export declare const CONTAINER_TOKEN: Token<IContainer>;
