@@ -102,17 +102,38 @@ describe("Framework", () => {
   });
 
   test("should initialize the framework with the correct properties", () => {
-    expect(framework).toHaveProperty("inject");
-    expect(framework).toHaveProperty("injectModule");
-    expect(framework).toHaveProperty("injectFactory");
-    expect(framework).toHaveProperty("buildContainer");
+    ["inject", "injectFactory", "injectModule"].forEach((method) => {
+      expect(framework[method]).toEqual(expect.any(Function));
+    });
 
     const container = framework.buildContainer();
 
-    expect(container).toHaveProperty("executeCommand");
-    expect(container).toHaveProperty("resolveInstance");
-    expect(container).toHaveProperty("canBeResolved");
-    expect(container).toHaveProperty("getInfo");
+    ["executeCommand", "resolveInstance", "canBeResolved", "getInfo"].forEach((method) => {
+      expect(container[method]).toEqual(expect.any(Function));
+    });
+  });
+
+  test("should return framework with custom injector", () => {
+    function injectLogger(token, deps = []) {
+      return framework.inject(token, deps);
+    }
+
+    framework.registerInjector(injectLogger);
+
+    ["inject", "injectFactory", "injectModule", injectLogger.name].forEach((method) => {
+      expect(framework[method]).toEqual(expect.any(Function));
+    });
+
+    const returnedFramework = framework.injectLogger(Logger);
+
+    ["inject", "injectFactory", "injectModule", injectLogger.name].forEach((method) => {
+      expect(returnedFramework[method]).toEqual(expect.any(Function));
+    });
+  });
+
+  test("hould throw an error is not a valid injector", () => {
+    expect(() => framework.registerInjector(undefined)).toThrowError("[ undefined ] is not a valid injector.");
+    expect(() => framework.registerInjector(() => {})).toThrowError("[  ] is not a valid injector.");
   });
 
   test("should inject dependencies and resolve them correctly", () => {
@@ -173,9 +194,9 @@ describe("Framework", () => {
     const container = framework.buildContainer();
     const candidate = container.resolveInstance(CONTAINER_TOKEN).resolveInstance(CONTAINER_TOKEN);
 
-    expect(candidate).toHaveProperty("resolveInstance");
-    expect(candidate).toHaveProperty("canBeResolved");
-    expect(candidate).toHaveProperty("getInfo");
+    ["executeCommand", "resolveInstance", "canBeResolved", "getInfo"].forEach((method) => {
+      expect(candidate[method]).toEqual(expect.any(Function));
+    });
   });
 
   test("should return correct resolution status for tokens", () => {

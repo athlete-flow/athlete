@@ -129,17 +129,25 @@ export interface IFramework {
   buildContainer(): IContainer;
 
   /**
-   * Registers an injector object that extends the framework with custom injection methods.
-   * The injector methods are merged into the framework instance, allowing for custom
-   * dependency injection patterns and specialized container building logic.
-   * @template T - The type of the injector object (record of methods)
-   * @param {T} injector - An object containing custom injection methods to be registered
-   * @returns {IFramework & T} The framework instance extended with the injector methods
+   * Registers a custom injector method.
+   * @template T
+   * @param {(...args: any) => T} injector - The injector function.
+   * @returns {T} The extended framework instance.
    * @example
-   * const updatedFramework = framework.registerInjector({ injectRoute, buildContainer })
+   * function injectRoute(token, deps = []) {
+   *   // do smth
+   *   return framework.inject(token, deps);
+   * }
+   * framework.registerInjector(injectRoute);
    */
+  registerInjector<T extends this>(injector: (...args: any) => T): T;
 
-  registerInjector<T extends Record<string, (...args: any) => any>>(injector: T): IFramework & T;
+  /**
+   * Injectable token for container instance.
+   * @example
+   * const containerToken: Token<IContainer> = framework.CONTAINER_TOKEN;
+   */
+  CONTAINER_TOKEN: Token<IContainer>;
 }
 
 /**

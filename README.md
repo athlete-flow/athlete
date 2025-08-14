@@ -227,4 +227,23 @@ class ServiceA {
 Athlete().inject(ServiceA, [CONTAINER_TOKEN]);
 ```
 
+- **registerInjector**:
+  Registers a custom injector method in the framework.  
+  The injector function is added to the framework instance and can be chained with other methods.  
+  Useful for adding domain-specific injection helpers.
+
+```typescript
+function injectRoute<T extends IServerRoute, A extends any[]>(
+  token: Token<T, A>,
+  dependencies = [] as Dependencies<A>
+) {
+  // do smth
+  return athlete.inject(token, dependencies) as IServerFramework;
+}
+
+Athlete()
+  .registerInjector(injectRoute)
+  .injectRoute(...);
+```
+
 Enjoy programming!

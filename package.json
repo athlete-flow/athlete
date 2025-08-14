@@ -1,6 +1,6 @@
 {
   "name": "athlete-core",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "Lightweight DI container for js/ts",
   "main": "index.js",
   "types": "index.d.ts",
