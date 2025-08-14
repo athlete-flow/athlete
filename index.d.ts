@@ -89,36 +89,36 @@ export interface IFramework {
    * @template T, A
    * @param { Token<T, A> } token - The token to be injected.
    * @param { Dependencies<A> } [dependencies=[]] - The dependencies of the token.
-   * @returns { IFramework } The framework instance for chaining.
+   * @returns { this } The framework instance for chaining.
    * @example
    * framework.inject(MyService, [dependency1, dependency2]);
    */
-  inject<T>(token: Token<T, []>): IFramework;
-  inject<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IFramework;
+  inject<T>(token: Token<T, []>): this;
+  inject<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): this;
 
   /**
    * Injects a factory token with dependencies.
    * @template T, A
    * @param { Token<T, A> } token - The factory token to be injected.
    * @param { Dependencies<A> } [dependencies=[]] - The dependencies of the token.
-   * @returns { IFramework } The framework instance for chaining.
+   * @returns { this } The framework instance for chaining.
    * @example
    * framework.injectFactory(MyFactoryToken);
    */
-  injectFactory<T>(token: Token<T, []>): IFramework;
-  injectFactory<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IFramework;
+  injectFactory<T>(token: Token<T, []>): this;
+  injectFactory<T, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): this;
 
   /**
    * Injects a module with dependencies.
    * @template T, A
    * @param { Token<T extends IModule, A> } token - The module token to be injected.
    * @param { Dependencies<A> } [dependencies=[]] - The dependencies of the module.
-   * @returns { IFramework } The framework instance for chaining.
+   * @returns { this } The framework instance for chaining.
    * @example
    * framework.injectModule(MyModuleToken, [dependency1]);
    */
-  injectModule<T extends IModule>(token: Token<T, []>): IFramework;
-  injectModule<T extends IModule, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): IFramework;
+  injectModule<T extends IModule>(token: Token<T, []>): this;
+  injectModule<T extends IModule, A extends any[]>(token: Token<T, A>, dependencies: Dependencies<A>): this;
 
   /**
    * Builds and returns a container instance with the resolved dependencies.
@@ -141,6 +141,7 @@ export interface IFramework {
    * framework.registerInjector(injectRoute);
    */
   registerInjector<T extends this>(injector: (...args: any) => T): T;
+  registerInjector<T extends this>(injector: (...args: any) => this): T;
 
   /**
    * Injectable token for container instance.
