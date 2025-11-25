@@ -140,9 +140,8 @@ Athlete()
 ### Modular Architecture
 
 ```typescript
-interface IModule {
-  export(framework: IFramework): void;
-}
+import type { IModule } from "athlete-core";
+...
 
 class DatabaseModule implements IModule {
   readonly DB_TOKEN = DatabaseConnection;
@@ -210,9 +209,8 @@ Athlete().inject(ServiceFactory, [CONTAINER_TOKEN]);
 Execute initialization logic after container creation:
 
 ```typescript
-interface ICommand {
-  execute(container: IСontainer): void;
-}
+import type { ICommand } from "athlete-core";
+...
 
 class StartServer implements ICommand {
   constructor(readonly app: Application) {}
